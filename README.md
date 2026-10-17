@@ -1,205 +1,151 @@
 # Arena Fácil
 
-Sistema web de agendamento de horários para arenas de quadras esportivas, desenvolvido para a disciplina de **Programação Orientada a Objetos (POO)**.
+Sistema web de agendamento de quadras esportivas, proposto para a disciplina de Programação Orientada a Objetos (POO) da UNDB.
 
----
+## Situação do projeto
 
-## O problema
+Esta entrega apresenta a proposta e o modelo conceitual do domínio. As funcionalidades e tecnologias abaixo são planejadas; este documento não pressupõe que já estejam implementadas. As regras detalhadas estão em [Modelo de domínio](docs/modelo-dominio.md).
 
-Muitas arenas esportivas ainda organizam suas reservas por WhatsApp, ligação ou caderno. Isso causa alguns problemas:
+## Problema e solução
 
-- **Reservas duplicadas:** dois clientes marcam a mesma quadra no mesmo horário.
-- **Atendimento manual:** o dono passa o dia respondendo "tem horário às 19h?".
-- **Falta de visibilidade:** o cliente não sabe quais horários estão livres sem perguntar.
-- **Falta de controle:** o dono não sabe com clareza quais horários mais vendem nem como está a ocupação da arena.
+Reservas organizadas por mensagens, ligações ou cadernos dificultam a consulta de horários e favorecem conflitos de agenda. O Arena Fácil oferece uma agenda por arena: o cliente escolhe quadra, data, horário e modalidade; o dono organiza as quadras e acompanha as reservas e a ocupação.
 
----
+O público-alvo são jogadores e donos de arenas de pequeno e médio porte.
 
-## A solução
+## Escopo da primeira versão
 
-O Arena Fácil é uma plataforma em que cada arena tem sua **agenda online**.
+| Perfil | Funcionalidades previstas |
+| --- | --- |
+| Cliente | Cadastro e login; consultar agenda; filtrar por data, quadra e modalidade; reservar; consultar e cancelar as próprias reservas. |
+| Dono da arena | Cadastro e login; gerenciar sua arena; cadastrar e editar quadras, modalidades, funcionamento e preço; consultar reservas do dia e da semana; cancelar reservas; acompanhar quantidade de reservas, horários mais procurados e faturamento estimado. |
 
-- O **cliente** acessa a agenda de uma arena, vê os horários disponíveis e faz a reserva sozinho, escolhendo quadra, data, horário e modalidade.
-- O **dono da arena** tem um painel para gerenciar quadras e horários, acompanhar os agendamentos e ver informações básicas do negócio.
+Ficam fora do escopo: pagamento online, notificações por WhatsApp ou e-mail e aplicativo mobile. Também não são previstos nesta versão reservas recorrentes, lista de espera, promoções, multas, avaliações e bloqueios especiais de agenda.
 
-O próprio sistema impede que duas reservas sejam feitas na mesma quadra e no mesmo horário.
+## Decisões de negócio
 
----
+Estas são as decisões adotadas para esta versão conceitual, sujeitas à evolução do projeto:
 
-## Público-alvo
+- Cada dono gerencia exatamente uma arena, que possui um único dono. Uma arena pode ser cadastrada antes de possuir quadras.
+- Cada conta tem um único perfil: cliente ou dono. O e-mail é único entre todos os usuários.
+- A arena funciona diariamente em uma única faixa de horário, sem atravessar a meia-noite. Datas e horários seguem o fuso da arena.
+- Cada reserva ocupa exatamente uma hora, começa em hora cheia, deve estar inteiramente dentro do funcionamento e ter início futuro.
+- A quadra deve estar ativa e aceitar a modalidade escolhida. Reservas confirmadas não podem se sobrepor na mesma quadra, nem para o mesmo cliente, inclusive entre arenas.
+- A confirmação é imediata, sem pagamento ou aprovação manual. A disponibilidade deve ser revalidada na confirmação, inclusive em solicitações simultâneas.
+- O cliente pode cancelar até duas horas antes do início, inclusive no limite. O dono pode cancelar qualquer reserva futura de sua arena, informando o motivo. Não há alteração ou reativação: cancela-se e faz-se outra reserva.
+- O preço vigente é registrado na reserva e não muda depois. Reservas canceladas não compõem ocupação nem faturamento estimado, que não representa dinheiro recebido.
+- Alterações de funcionamento, modalidade ou ativação de quadra não podem invalidar reservas futuras confirmadas; elas precisam ser preservadas ou canceladas antes pelo dono. O histórico é mantido.
 
-| Perfil | Necessidade |
-|---|---|
-| **Jogadores** | Reservar um horário de forma rápida, sem depender de atendimento |
-| **Donos de arenas** de pequeno e médio porte | Organizar a agenda, reduzir o trabalho manual e acompanhar o movimento do negócio |
+Consulte as condições completas, exemplos e definições dos indicadores na [documentação do domínio](docs/modelo-dominio.md).
 
----
+## Modelo conceitual de classes
 
-## Funcionalidades
-
-### Cliente
-- Cadastro e login
-- Visualizar a agenda de uma arena
-- Filtrar horários por data, quadra e modalidade
-- Fazer agendamento
-- Ver e cancelar seus agendamentos
-
-### Dono da arena
-- Cadastro e login
-- Cadastrar e editar quadras
-- Definir as modalidades de cada quadra
-- Definir horário de funcionamento e valor por hora
-- Visualizar os agendamentos do dia e da semana
-- Cancelar agendamentos
-- Ver informações do negócio: quantidade de reservas, horários mais procurados e faturamento estimado
-
-### Fora do escopo desta versão
-- Pagamento online
-- Notificações por WhatsApp ou e-mail
-- Aplicativo mobile
-
----
-
-## POO — Estrutura do projeto
-
-O sistema é construído a partir de classes que representam os elementos reais de uma arena.
-
-### Classes
-
-| Classe | Descrição |
-|---|---|
-| `Usuario` | Classe abstrata com os dados comuns a todos os usuários: nome, e-mail e senha |
-| `Cliente` | Herda de `Usuario`. Faz e cancela agendamentos |
-| `DonoArena` | Herda de `Usuario`. Gerencia a arena, as quadras e os agendamentos |
-| `Arena` | O estabelecimento: nome, endereço, horário de funcionamento e suas quadras |
-| `Quadra` | Pertence a uma arena. Tem modalidades aceitas e valor por hora |
-| `Modalidade` | O esporte praticado (vôlei, futevôlei, beach tennis etc.) |
-| `Agendamento` | Liga um cliente a uma quadra, modalidade, data e horário |
-
-### Diagrama de classes
+O diagrama descreve conceitos e responsabilidades de POO, sem implementação Python ou esquema de banco de dados. Os tipos são conceituais, `-` indica atributos encapsulados e `+` indica operações públicas propostas.
 
 ```mermaid
 classDiagram
     class Usuario {
         <<abstract>>
-        -nome
-        -email
-        -senha
-        +autenticar()
+        -id: Identificador
+        -nome: Texto
+        -email: Texto
+        +perfil() PerfilUsuario
     }
     class Cliente {
-        -telefone
-        +agendar()
-        +cancelar_agendamento()
+        -telefone: Texto
+        +perfil() PerfilUsuario
     }
     class DonoArena {
-        +cadastrar_quadra()
-        +ver_agendamentos()
+        +perfil() PerfilUsuario
     }
     class Arena {
-        -nome
-        -endereco
-        -horario_abertura
-        -horario_fechamento
-        +horarios_disponiveis()
+        -id: Identificador
+        -nome: Texto
+        -endereco: Texto
+        -fusoHorario: Texto
+        -horarioAbertura: Hora
+        -horarioFechamento: Hora
     }
     class Quadra {
-        -nome
-        -valor_hora
-        -ativa
-        +aceita_modalidade()
+        -id: Identificador
+        -nome: Texto
+        -valorHora: Dinheiro
+        -ativa: Booleano
+        +aceitaModalidade(modalidade) Booleano
     }
     class Modalidade {
-        -nome
+        -id: Identificador
+        -nome: Texto
     }
     class Agendamento {
-        -data
-        -horario
-        -status
-        +cancelar()
+        -id: Identificador
+        -inicio: DataHora
+        -fim: DataHora
+        -criadoEm: DataHora
+        -valorHoraContratado: Dinheiro
+        -valorTotal: Dinheiro
+        -status: StatusAgendamento
+        -canceladoEm: DataHoraOpcional
+        -motivoCancelamento: TextoOpcional
+        +cancelar(autor, motivo)
     }
-
+    class StatusAgendamento {
+        <<enumeration>>
+        CONFIRMADO
+        CANCELADO
+    }
     Usuario <|-- Cliente
     Usuario <|-- DonoArena
-    DonoArena "1" --> "1" Arena : gerencia
-    Arena "1" *-- "1..*" Quadra : possui
-    Quadra "*" --> "1..*" Modalidade : aceita
-    Cliente "1" --> "*" Agendamento : realiza
-    Agendamento "*" --> "1" Quadra
-    Agendamento "*" --> "1" Modalidade
+    DonoArena "1" -- "1" Arena : gerencia
+    Arena "1" *-- "0..*" Quadra : possui
+    Quadra "0..*" -- "1..*" Modalidade : aceita
+    Cliente "1" -- "0..*" Agendamento : realiza
+    Quadra "1" -- "0..*" Agendamento : recebe
+    Modalidade "1" -- "0..*" Agendamento : escolhida em
+    Usuario "0..1" -- "0..*" Agendamento : cancela
+    Agendamento ..> StatusAgendamento : utiliza
+
 ```
 
-### Pilares de POO aplicados
+`StatusAgendamento` é um tipo enumerado, não uma entidade. A associação “cancela” registra o autor do cancelamento: nenhum enquanto confirmado e exatamente um após o cancelamento. As restrições complementares estão na documentação.
 
-| Pilar | Como é aplicado |
-|---|---|
-| **Abstração** | `Usuario` define o que todo usuário tem em comum, sem ser instanciada diretamente |
-| **Encapsulamento** | Atributos privados, como a senha e o status do agendamento, que só são alterados por métodos da própria classe |
-| **Herança** | `Cliente` e `DonoArena` herdam de `Usuario` |
-| **Polimorfismo** | Cada tipo de usuário tem comportamentos e permissões diferentes no sistema |
-| **Composição** | Uma `Arena` é formada por suas `Quadra`s |
+## POO no domínio
 
----
+| Conceito | Aplicação proposta |
+| --- | --- |
+| Abstração | `Usuario` reúne identidade, nome e e-mail e não é instanciado diretamente. |
+| Encapsulamento | Mudanças de estado devem respeitar regras, especialmente o cancelamento de `Agendamento`. |
+| Herança | `Cliente` e `DonoArena` especializam `Usuario`. |
+| Polimorfismo | A operação comum `perfil()` retorna CLIENTE ou DONO_ARENA conforme a especialização. Diferenças de permissão, isoladamente, não demonstram polimorfismo. |
+| Composição | `Quadra` pertence exclusivamente a uma `Arena` e não existe fora dela; isso não exige apagar o histórico. |
 
-## Arquitetura
+Login integra o escopo funcional, mas armazenamento de credenciais e mecanismos de autenticação serão definidos no projeto técnico. Senha em texto puro não é atributo deste modelo de domínio.
 
-### Visão geral
+## Arquitetura e tecnologias planejadas
 
-O sistema é dividido em camadas, cada uma com uma responsabilidade.
+A organização prevista separa interface web, API, regras de domínio e persistência. A interface consulta a API, que coordena as regras e o acesso aos dados. A agenda e os indicadores são consultas derivadas, sem exigir entidades próprias.
 
-```mermaid
-flowchart LR
-    U1([Cliente]) --> F
-    U2([Dono da Arena]) --> F
-    F[Front-end<br/>HTML · CSS · JS] -->|Requisições HTTP| A[API<br/>Python + FastAPI]
-    A --> S[Regras de negócio<br/>Classes do sistema]
-    S --> DB[(Banco de dados<br/>PostgreSQL)]
-```
+| Área | Tecnologia prevista |
+| --- | --- |
+| Interface | HTML, CSS e JavaScript |
+| API | Python e FastAPI |
+| Persistência | PostgreSQL |
+| Testes | Pytest |
+| Ambiente e integração contínua | Docker e GitHub Actions |
+| Versionamento | Git e GitHub |
 
-| Camada | Responsabilidade |
-|---|---|
-| **Front-end** | Telas do cliente (agenda e reservas) e painel do dono |
-| **API** | Recebe as requisições do front-end e devolve as respostas |
-| **Regras de negócio** | Onde ficam as classes e as validações do sistema |
-| **Banco de dados** | Armazena usuários, arenas, quadras e agendamentos |
+A implementação deverá garantir a indivisibilidade da verificação de disponibilidade e da confirmação da reserva. O mecanismo será escolhido na etapa técnica.
 
-### Fluxo de agendamento
+## Documentação
 
-```mermaid
-flowchart TD
-    A([Cliente acessa a agenda da arena]) --> B[Escolhe quadra, data,<br/>horário e modalidade]
-    B --> C{Horário está livre?}
-    C -- Não --> D[Sistema avisa que o horário<br/>está ocupado]
-    D --> B
-    C -- Sim --> E{Quadra aceita<br/>a modalidade?}
-    E -- Não --> F[Sistema pede outra<br/>modalidade ou quadra]
-    F --> B
-    E -- Sim --> G[Agendamento confirmado]
-    G --> H([Reserva aparece no<br/>painel do dono])
-```
-
----
-
-## Stack tecnológica
-
-| Área | Tecnologia | Por quê |
-|---|---|---|
-| Back-end | **Python + FastAPI** | Python é a linguagem da disciplina; FastAPI é leve e simples |
-| Banco de dados | **PostgreSQL** | Banco relacional gratuito e bem documentado |
-| Front-end | **HTML, CSS e JavaScript** | Simples, sem necessidade de framework |
-| Testes | **Pytest** | Padrão para testes em Python |
-| DevOps | **Docker + GitHub Actions** | Mesmo ambiente para todos e testes automáticos no GitHub |
-| Versionamento | **Git + GitHub** | Repositório do projeto e entregas |
-
----
+- [Modelo de domínio e regras de negócio](docs/modelo-dominio.md)
 
 ## Membros e funções
 
-| Membro | Função | Responsabilidades |
-|---|---|---|
-| **Gabriel Ferreira** | Tech Lead | Organiza as tarefas, define a arquitetura e as classes, revisa o código e integra as partes do projeto |
-| **Lukas Smith** | Back-end | Desenvolve as classes, as regras de negócio e a API |
-| **Lucas Viana** | Front-end | Desenvolve as telas do cliente e o painel do dono, e integra com a API |
-| **Gustavo Carvalho** | Banco de Dados | Modela e cria o banco de dados |
-| **Pedro Igor** | DevOps | Configura o Docker e a automação de testes no GitHub |
-| **Pacífico** | Q.A. | Cria e executa os testes e garante que as regras do sistema funcionam |
+| Membro | Função | Responsabilidade |
+| --- | --- | --- |
+| Gabriel Ferreira | Tech Lead | Organização, arquitetura, revisão e integração. |
+| Lukas Smith | Back-end | Classes, regras de negócio e API. |
+| Lucas Viana | Front-end | Telas e integração com a API. |
+| Gustavo Carvalho | Banco de Dados | Modelagem e criação do banco. |
+| Pedro Igor | DevOps | Ambiente e automação de testes. |
+| Pacífico | Q.A. | Planejamento e execução de testes. |
