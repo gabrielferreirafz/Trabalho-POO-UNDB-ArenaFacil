@@ -124,28 +124,3 @@ Login integra o escopo funcional, mas armazenamento de credenciais e mecanismos 
 
 A organização prevista separa interface web, API, regras de domínio e persistência. A interface consulta a API, que coordena as regras e o acesso aos dados. A agenda e os indicadores são consultas derivadas, sem exigir entidades próprias.
 
-| Área | Tecnologia prevista |
-| --- | --- |
-| Interface | HTML, CSS e JavaScript |
-| API | Python e FastAPI |
-| Persistência | PostgreSQL |
-| Testes | Pytest |
-| Ambiente e integração contínua | Docker e GitHub Actions |
-| Versionamento | Git e GitHub |
-
-A implementação deverá garantir a indivisibilidade da verificação de disponibilidade e da confirmação da reserva. O mecanismo será escolhido na etapa técnica.
-
-## Documentação
-
-- [Modelo de domínio e regras de negócio](docs/modelo-dominio.md)
-
-## Membros e funções
-
-| Membro | Função | Responsabilidade |
-| --- | --- | --- |
-| Gabriel Ferreira | Tech Lead | Organização, arquitetura, revisão e integração. |
-| Lukas Smith | Back-end | Classes, regras de negócio e API. |
-| Lucas Viana | Front-end | Telas e integração com a API. |
-| Gustavo Carvalho | Banco de Dados | Modelagem e criação do banco. |
-| Pedro Igor | DevOps | Ambiente e automação de testes. |
-| Pacífico | Q.A. | Planejamento e execução de testes. |
