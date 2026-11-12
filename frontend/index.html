@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#141414" />
+    <title>Arena Fácil · Seu próximo jogo</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/script.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Arena Fácil, início"
+        ><span class="brand-icon" aria-hidden="true">af<span>.</span></span>
+        arena<span>fácil</span></a
+      >
+      <nav id="navegacao" aria-label="Navegação principal" hidden>
+        <button id="nav-principal" class="nav-link" type="button">
+          Encontrar arenas
+        </button>
+        <button id="nav-reservas" class="nav-link" type="button">
+          Minhas reservas
+        </button>
+      </nav>
+      <div id="conta" hidden>
+        <span id="nome-usuario"></span
+        ><button id="sair" type="button" class="text-button">Sair ↗</button>
+      </div>
+      <span id="etiqueta-inicial" class="muted small"
+        >AREIA. ESPORTE. CONEXÃO.</span
+      >
+    </header>
+
+    <main>
+      <div id="mensagem" role="status" aria-live="polite" hidden></div>
+
+      <section id="tela-entrada" class="screen entry-layout">
+        <div class="intro">
+          <span class="eyebrow"
+            ><span class="dot"></span> O SEU JOGO COMEÇA AQUI</span
+          >
+          <h1>
+            Menos espera.<br />Mais <span class="accent">pé na areia.</span>
+          </h1>
+          <p>
+            Encontre sua arena, escolha um horário e reúna a turma. O próximo
+            jogo fica por sua conta.
+          </p>
+          <div class="sports">
+            <span>Futevôlei</span><span>Vôlei</span><span>Beach tênis</span>
+          </div>
+          <div class="court-art" aria-hidden="true">
+            <div class="court-lines"><span></span></div>
+            <div class="ball"></div>
+            <span class="court-label">SEU PRÓXIMO JOGO ESTÁ LOGO ALI ↗</span>
+          </div>
+        </div>
+        <div class="panel entry-panel">
+          <span class="eyebrow">BEM-VINDO À ARENA</span>
+          <h2 id="titulo-entrada">Vamos jogar?</h2>
+          <p id="subtitulo-entrada" class="muted">
+            Entre com seu e-mail cadastrado.
+          </p>
+          <div class="tabs" aria-label="Entrada ou cadastro">
+            <button type="button" id="aba-entrar" class="active">Entrar</button>
+            <button type="button" id="aba-cadastrar">Criar conta</button>
+          </div>
+          <form id="form-entrada">
+            <div id="campos-cadastro" hidden>
+              <label
+                >Seu nome<input
+                  name="nome"
+                  autocomplete="name"
+                  minlength="2"
+                  maxlength="100"
+                  placeholder="Como podemos chamar você?"
+              /></label>
+              <label
+                >Quero usar como<select name="perfil">
+                  <option value="CLIENTE">Cliente · quero reservar</option>
+                  <option value="DONO">
+                    Dono · quero cadastrar minha arena
+                  </option>
+                </select></label
+              >
+            </div>
+            <label
+              >E-mail<input
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                maxlength="150"
+                placeholder="voce@exemplo.com"
+            /></label>
+            <fieldset id="campos-arena" hidden>
+              <legend>Sua arena</legend>
+              <label
+                >Nome da arena<input
+                  name="arena_nome"
+                  minlength="2"
+                  maxlength="100"
+                  placeholder="Ex.: Arena da Praia"
+              /></label>
+              <label
+                >Endereço<input
+                  name="endereco"
+                  minlength="3"
+                  maxlength="255"
+                  placeholder="Rua, número e bairro"
+              /></label>
+              <div class="form-row">
+                <label
+                  >Abertura<input
+                    name="abertura"
+                    type="time"
+                    value="07:00" /></label
+                ><label
+                  >Fechamento<input name="fechamento" type="time" value="23:00"
+                /></label>
+              </div>
+              <p class="muted small">
+                O mesmo funcionamento vale todos os dias e é definido neste
+                cadastro.
+              </p>
+            </fieldset>
+            <button class="primary full" id="botao-entrada" type="submit">
+              Entrar na arena <span>↗</span>
+            </button>
+          </form>
+          <p class="academic-note">
+            Demonstração acadêmica · identificação sem senha.<br />Use apenas
+            dados fictícios.
+          </p>
+        </div>
+      </section>
+
+      <section id="tela-arenas" class="screen" hidden>
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">ENCONTRE SEU LUGAR</span>
+            <h1>Onde vai ser o <span class="accent">jogo?</span></h1>
+            <p class="muted">Sua turma, sua modalidade, seu horário.</p>
+          </div>
+          <span class="outline-tag">FORTALEZA · UTC−3</span>
+        </div>
+        <form id="form-busca" class="search-bar">
+          <label class="sr-only" for="busca">Buscar arena pelo nome</label
+          ><input
+            id="busca"
+            type="search"
+            maxlength="100"
+            placeholder="Busque uma arena pelo nome"
+          /><button class="primary" type="submit">Buscar ↗</button>
+        </form>
+        <div class="section-label">
+          <h2>Arenas para o seu jogo</h2>
+          <span id="total-arenas" class="muted small"></span>
+        </div>
+        <div id="lista-arenas" class="grid"></div>
+      </section>
+
+      <section id="tela-arena" class="screen" hidden>
+        <button type="button" id="voltar-arenas" class="text-button back">
+          ← Todas as arenas
+        </button>
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">ESCOLHA SUA QUADRA</span>
+            <h1 id="arena-nome"></h1>
+            <p id="arena-dados" class="muted"></p>
+          </div>
+          <span class="outline-tag">RESERVAS DE 1 HORA</span>
+        </div>
+        <div class="filters">
+          <label>Dia do jogo<input id="data-jogo" type="date" required /></label
+          ><label
+            >Modalidade<select id="modalidade-jogo">
+              <option value="">Todas as modalidades</option>
+              <option value="FUTEVOLEI">Futevôlei</option>
+              <option value="VOLEI">Vôlei</option>
+              <option value="BEACH_TENIS">Beach tênis</option>
+            </select></label
+          >
+        </div>
+        <p class="muted small">
+          Horários de Fortaleza. Exibimos apenas opções livres para a quadra e
+          para você.
+        </p>
+        <div id="lista-quadras" class="grid court-grid"></div>
+      </section>
+
+      <section id="tela-dono" class="screen" hidden>
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">SUA ARENA, EM DIA</span>
+            <h1 id="dono-arena-nome"></h1>
+            <p id="dono-arena-dados" class="muted"></p>
+          </div>
+          <button type="button" id="nova-quadra" class="primary">
+            + Nova quadra
+          </button>
+        </div>
+        <div class="section-label">
+          <h2>Suas quadras</h2>
+          <span class="muted small">Gerencie o espaço do próximo jogo.</span>
+        </div>
+        <div id="quadras-dono" class="grid"></div>
+      </section>
+
+      <section id="tela-reservas" class="screen" hidden>
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">TUDO COMBINADO</span>
+            <h1 id="titulo-reservas">
+              Seus próximos <span class="accent">jogos.</span>
+            </h1>
+            <p id="descricao-reservas" class="muted">
+              Consulte suas reservas e relembre os jogos anteriores.
+            </p>
+          </div>
+        </div>
+        <div class="filters">
+          <label
+            >Exibir<select id="filtro-reservas">
+              <option value="proximas">Próximas reservas</option>
+              <option value="historico">Histórico e canceladas</option>
+              <option value="todas">Todas as reservas</option>
+            </select></label
+          ><label>Data específica<input id="data-reservas" type="date" /></label
+          ><button id="limpar-data" class="text-button" type="button">
+            Limpar data
+          </button>
+        </div>
+        <div id="lista-reservas" class="reservations"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span
+        >arena<span class="accent">fácil</span> · Seu próximo jogo, sem
+        complicação.</span
+      ><span>Projeto acadêmico · POO / UNDB</span>
+    </footer>
+
+    <dialog id="dialog-quadra" aria-labelledby="titulo-quadra">
+      <div class="dialog-heading">
+        <h2 id="titulo-quadra">Nova quadra</h2>
+        <button class="close-dialog" type="button" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+      <form id="form-quadra">
+        <label
+          >Nome<input
+            name="nome"
+            required
+            minlength="2"
+            maxlength="100"
+            placeholder="Ex.: Quadra Sol"
+        /></label>
+        <label
+          >Descrição <span class="muted">(opcional)</span
+          ><textarea
+            name="descricao"
+            maxlength="500"
+            rows="2"
+            placeholder="Conte um pouco sobre a quadra"
+          ></textarea>
+        </label>
+        <label
+          >Preço por hora (R$)<input
+            name="preco_hora"
+            type="number"
+            min="0.01"
+            max="99999999.99"
+            step="0.01"
+            required
+            placeholder="100,00"
+        /></label>
+        <fieldset>
+          <legend>Modalidades</legend>
+          <div class="checkboxes">
+            <label
+              ><input
+                type="checkbox"
+                name="modalidades"
+                value="FUTEVOLEI"
+              />Futevôlei</label
+            ><label
+              ><input
+                type="checkbox"
+                name="modalidades"
+                value="VOLEI"
+              />Vôlei</label
+            ><label
+              ><input
+                type="checkbox"
+                name="modalidades"
+                value="BEACH_TENIS"
+              />Beach tênis</label
+            >
+          </div>
+        </fieldset>
+        <p id="erro-quadra" class="inline-error" role="alert" hidden></p>
+        <button class="primary full" type="submit">Salvar quadra ↗</button>
+      </form>
+    </dialog>
+
+    <dialog id="dialog-confirmacao" aria-labelledby="titulo-confirmacao">
+      <div class="dialog-heading">
+        <h2 id="titulo-confirmacao">Confirme seu jogo</h2>
+        <button class="close-dialog" type="button" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+      <div id="resumo-confirmacao"></div>
+      <p id="erro-confirmacao" class="inline-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="secondary close-dialog">Voltar</button
+        ><button type="button" id="confirmar-acao" class="primary">
+          Confirmar reserva ↗
+        </button>
+      </div>
+    </dialog>
+  </body>
+</html>
