@@ -1,13 +1,16 @@
-# Ambientes virtuais 
+# Ambientes virtuais
 .venv/
 venv/
 
-# Cache e arquivos compilados do python
+# Cache e arquivos compilados do Python
 __pycache__/
 *.py[cod]
 
 # Cache de testes
 .pytest_cache/
 
-# Variaveis de ambiente locais
+# Variáveis de ambiente locais
 .env
+
+# Ferramentas locais de desenvolvimento
+.tools/
