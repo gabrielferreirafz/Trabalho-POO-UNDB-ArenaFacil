@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: arena
+      POSTGRES_PASSWORD: arena_local
+      POSTGRES_DB: arena_facil
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - arena_dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arena -d arena_facil"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    image: python:3.13-slim
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+    environment:
+      DATABASE_URL: postgresql://arena:arena_local@db:5432/arena_facil
+      PYTHONDONTWRITEBYTECODE: "1"
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  arena_dados:
